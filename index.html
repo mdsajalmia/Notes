@@ -90,6 +90,9 @@
             }
         }
     </style>
+    <link rel="manifest" href="/Notes/manifest.json">
+<meta name="theme-color" content="#312e81">
+<link rel="apple-touch-icon" href="/Notes/icons/icon-192.png">
 </head>
 <body class="min-h-screen flex flex-col text-slate-800">
 
@@ -2069,5 +2072,14 @@
             };
         }
     </script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/Notes/service-worker.js')
+        .then((reg) => console.log('Study Hub Service Worker registered successfully:', reg.scope))
+        .catch((err) => console.error('Service Worker registration failed:', err));
+    });
+  }
+</script>
 </body>
 </html>
