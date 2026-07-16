@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Study Hub & Reference Master</title>
+    <!-- Tailwind CSS for high-quality utility styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for premium typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for executive icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Pulse highlights for navigated questions in bank */
+        @keyframes highlight-pulse {
+            0%, 100% { border-color: #e2e8f0; box-shadow: none; }
+            50% { border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25); transform: scale(1.01); }
+        }
+        .pulsing-card {
+            animation: highlight-pulse 2s ease-in-out 3;
+        }
+
+        /* Responsive typography scale for extreme readability */
+        @media (max-width: 640px) {
+            .study-text-scale {
+                font-size: 1.125rem !important;
+                line-height: 1.625rem !important;
+            }
+        }
+
+        /* Optimized PDF layout settings via native browser printing */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                font-size: 11pt !important;
+            }
+            header, 
+            footer, 
+            #toast-container, 
+            #confirm-modal, 
+            .nav-btn, 
+            button, 
+            select, 
+            input, 
+            textarea, 
+            .no-print, 
+            .tab-panel:not(#print-preview-panel) {
+                display: none !important;
+            }
+            
+            #print-preview-panel {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .print-card {
+                page-break-inside: avoid;
+                border: 1px solid #cbd5e1 !important;
+                margin-bottom: 1.5rem !important;
+                padding: 1.5rem !important;
+                border-radius: 0.5rem !important;
+                background-color: #ffffff !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
+                    <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-inner flex items-center justify-center">
+                        <i class="fa-solid fa-graduation-cap text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-lg font-black tracking-tight block leading-tight">STUDY HUB</span>
+                        <span class="text-[10px] uppercase font-bold tracking-widest text-indigo-300">Reference Edition</span>
+                    </div>
+                </div>
+                
+                <nav class="hidden md:flex space-x-2">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-800/60 transition flex items-center gap-2 text-white min-h-[40px]">
+                        <i class="fa-solid fa-chart-pie"></i> Dashboard
+                    </button>
+                    <button onclick="switchTab('study')" id="nav-study" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-800/60 transition flex items-center gap-2 text-indigo-200 min-h-[40px]">
+                        <i class="fa-solid fa-book-open"></i> Study Room
+                    </button>
+                    <button onclick="switchTab('bank')" id="nav-bank" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-800/60 transition flex items-center gap-2 text-indigo-200 min-h-[40px]">
+                        <i class="fa-solid fa-database"></i> Question Bank
+                    </button>
+                    <button onclick="switchTab('books')" id="nav-books" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-800/60 transition flex items-center gap-2 text-indigo-200 min-h-[40px]">
+                        <i class="fa-solid fa-swatchbook"></i> Books & Sources
+                    </button>
+                    <button onclick="switchTab('input')" id="nav-input" class="nav-btn bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2 text-white shadow-md min-h-[40px]">
+                        <i class="fa-solid fa-plus"></i> Add Question
+                    </button>
+                    <button onclick="switchTab('backup')" id="nav-backup" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-800/60 transition flex items-center gap-2 text-indigo-200 min-h-[40px]">
+                        <i class="fa-solid fa-file-import"></i> Backup & Sync
+                    </button>
+                </nav>
+
+                <!-- Mobile menu toggle button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-3 text-indigo-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg min-h-[48px] min-w-[48px] flex items-center justify-center" aria-label="Toggle navigation menu">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Navigation (Slide down layout) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-indigo-950 border-t border-indigo-800 px-4 pt-2 pb-4 space-y-2">
+            <button onclick="switchTab('dashboard')" class="block w-full text-left px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-indigo-800 transition flex items-center gap-3 min-h-[48px]"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
+            <button onclick="switchTab('study')" class="block w-full text-left px-4 py-3 rounded-xl text-base font-medium text-indigo-200 hover:bg-indigo-800 hover:text-white transition flex items-center gap-3 min-h-[48px]"><i class="fa-solid fa-book-open"></i> Study Room</button>
+            <button onclick="switchTab('bank')" class="block w-full text-left px-4 py-3 rounded-xl text-base font-medium text-indigo-200 hover:bg-indigo-800 hover:text-white transition flex items-center gap-3 min-h-[48px]"><i class="fa-solid fa-database"></i> Question Bank</button>
+            <button onclick="switchTab('books')" class="block w-full text-left px-4 py-3 rounded-xl text-base font-medium text-indigo-200 hover:bg-indigo-800 hover:text-white transition flex items-center gap-3 min-h-[48px]"><i class="fa-solid fa-swatchbook"></i> Books & Sources</button>
+            <button onclick="switchTab('input')" class="block w-full text-left px-4 py-3 rounded-xl text-base font-medium text-white bg-emerald-600 hover:bg-emerald-500 transition flex items-center gap-3 min-h-[48px]"><i class="fa-solid fa-plus"></i> Add Question</button>
+            <button onclick="switchTab('backup')" class="block w-full text-left px-4 py-3 rounded-xl text-base font-medium text-indigo-200 hover:bg-indigo-800 hover:text-white transition flex items-center gap-3 min-h-[48px]"><i class="fa-solid fa-file-import"></i> Backup & Sync</button>
+        </div>
+    </header>
+
+    <!-- Unified Toast container for system feedback notifications -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full p-4 pointer-events-none no-print"></div>
+
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4 hidden backdrop-blur-sm no-print">
+        <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl border border-slate-100 transform transition-all">
+            <div class="flex items-center gap-3 text-amber-600 mb-4">
+                <i class="fa-solid fa-triangle-exclamation text-2xl animate-bounce"></i>
+                <h3 class="text-lg font-bold text-slate-900" id="confirm-title">Are you sure?</h3>
+            </div>
+            <p class="text-sm text-slate-600 mb-6 leading-relaxed" id="confirm-message">This action cannot be undone.</p>
+            <div class="flex gap-3 justify-end">
+                <button id="confirm-cancel-btn" class="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition min-h-[44px]">Cancel</button>
+                <button id="confirm-proceed-btn" class="px-5 py-3 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl transition shadow-sm min-h-[44px]">Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Stream -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- ================= PANEL 1: DASHBOARD ================= -->
+        <section id="panel-dashboard" class="tab-panel space-y-6 no-print">
+            <div class="bg-gradient-to-r from-indigo-800 to-indigo-650 rounded-2xl p-6 md:p-8 text-white shadow-lg flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black">Welcome to Your Study Companion</h1>
+                    <p class="text-indigo-200 text-xs md:text-sm mt-1.5 max-w-xl font-medium leading-relaxed">
+                        Your private study repository. Catalog customized questions, multiple-choice options, deep conceptual explanations, and associate page numbers across multiple reference books.
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-2.5 w-full lg:w-auto">
+                    <button onclick="switchTab('input')" class="bg-white text-indigo-900 hover:bg-indigo-50 font-extrabold text-xs px-5 py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 flex-grow sm:flex-grow-0 min-h-[44px]">
+                        <i class="fa-solid fa-circle-plus"></i> New Study Question
+                    </button>
+                    <button onclick="printEntireLibrary()" class="bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-500 font-extrabold text-xs px-5 py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 flex-grow sm:flex-grow-0 min-h-[44px]">
+                        <i class="fa-solid fa-file-pdf"></i> Export Hub to PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quantitative Overview Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-slate-400 text-xs font-bold uppercase tracking-wider block">Total Database</span>
+                        <span id="stat-total-q" class="text-3xl font-black text-slate-900 mt-1 block">0</span>
+                        <span class="text-[10px] text-slate-500 font-medium block mt-1">Questions cataloged</span>
+                    </div>
+                    <div class="bg-indigo-50 text-indigo-600 p-3.5 rounded-xl text-lg flex items-center justify-center"><i class="fa-solid fa-database"></i></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-slate-400 text-xs font-bold uppercase tracking-wider block">Mastered Items</span>
+                        <span id="stat-mastered" class="text-3xl font-black text-emerald-600 mt-1 block">0</span>
+                        <span class="text-[10px] text-slate-500 font-medium block mt-1" id="stat-mastered-pct">0% of total pool</span>
+                    </div>
+                    <div class="bg-emerald-50 text-emerald-600 p-3.5 rounded-xl text-lg flex items-center justify-center"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-slate-400 text-xs font-bold uppercase tracking-wider block">Needs Practice</span>
+                        <span id="stat-unmastered" class="text-3xl font-black text-amber-600 mt-1 block">0</span>
+                        <span class="text-[10px] text-slate-500 font-medium block mt-1">Requires active review</span>
+                    </div>
+                    <div class="bg-amber-50 text-amber-600 p-3.5 rounded-xl text-lg flex items-center justify-center"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-slate-400 text-xs font-bold uppercase tracking-wider block">Reference Books</span>
+                        <span id="stat-books-count" class="text-3xl font-black text-violet-600 mt-1 block">0</span>
+                        <span class="text-[10px] text-slate-500 font-medium block mt-1">Volumes tracked</span>
+                    </div>
+                    <div class="bg-violet-50 text-violet-600 p-3.5 rounded-xl text-lg flex items-center justify-center"><i class="fa-solid fa-swatchbook"></i></div>
+                </div>
+            </div>
+
+            <!-- Subject-wise Breakdown Grid -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 md:p-6 shadow-sm">
+                <h3 class="text-sm font-extrabold text-slate-900 mb-5 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-bar text-indigo-600"></i> Subject Breakdown & Mastery Matrix
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="dashboard-subject-distribution">
+                    <!-- Loaded dynamically via state engine -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PANEL 2: STUDY ROOM ================= -->
+        <section id="panel-study" class="tab-panel hidden space-y-6 no-print">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-900">Personal Study Room</h2>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5">Test your active recall. Explanations will reveal directly under the options matrix.</p>
+                </div>
+                
+                <!-- Deck Selector Filter (Mobile optimized width) -->
+                <div class="w-full md:w-auto">
+                    <select id="study-subject-filter" onchange="startStudySession()" class="text-xs font-bold bg-white border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm w-full md:w-60 min-h-[44px]">
+                        <option value="all">All Available Subjects</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Flashcard Container Module -->
+            <div id="study-deck-interface" class="w-full max-w-4xl mx-auto space-y-6">
+                <!-- Top Card: Question & Options Flow -->
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-md overflow-hidden flex flex-col">
+                    <!-- Card Header Details -->
+                    <div class="bg-slate-50 px-5 py-4 border-b border-slate-100 flex justify-between items-center flex-wrap gap-2">
+                        <div class="flex items-center gap-2">
+                            <span id="study-card-subject" class="bg-indigo-100 text-indigo-800 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full">Subject</span>
+                            <span id="study-card-counter" class="text-xs text-slate-400 font-bold">Question 0 of 0</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="study-mastered-indicator" class="hidden text-emerald-700 bg-emerald-50 text-[10px] font-bold px-2.5 py-1 rounded-md border border-emerald-200">
+                                <i class="fa-solid fa-circle-check"></i> Mastered
+                            </span>
+                            <button onclick="toggleStudyMastered()" class="text-slate-400 hover:text-emerald-600 transition p-2 min-w-[40px] min-h-[40px] flex items-center justify-center" title="Toggle Mastered State">
+                                <i class="fa-solid fa-circle-check text-xl" id="study-master-checkbox"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card Body elements -->
+                    <div class="p-5 md:p-8 flex-grow flex flex-col justify-between space-y-6">
+                        <div class="space-y-6">
+                            <!-- Question layout on Top -->
+                            <div>
+                                <h3 id="study-card-question" class="text-lg md:text-xl font-bold text-slate-800 leading-relaxed study-text-scale border-b border-slate-100 pb-4">
+                                    No questions available in this category. Add new questions first to start practicing!
+                                </h3>
+                                <!-- Book reference source tags -->
+                                <div id="study-card-sources" class="flex flex-wrap gap-2 mt-3.5">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Options Grid: Side-by-Side 2x2 stacking on mobile -->
+                            <div class="space-y-3">
+                                <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Choose an Answer:</span>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="study-options-container">
+                                    <!-- Populated on play state -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Controls panel -->
+                        <div class="pt-5 border-t border-slate-100 flex flex-wrap justify-between items-center gap-4">
+                            <div class="flex gap-2 w-full sm:w-auto">
+                                <button onclick="navigateStudy(-1)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-5 py-3.5 rounded-xl transition flex-grow sm:flex-grow-0 flex items-center justify-center gap-1.5 border border-slate-300 min-h-[44px]">
+                                    <i class="fa-solid fa-arrow-left"></i> Prev
+                                </button>
+                                <button onclick="navigateStudy(1)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-5 py-3.5 rounded-xl transition flex-grow sm:flex-grow-0 flex items-center justify-center gap-1.5 border border-slate-300 min-h-[44px]">
+                                    Next <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+
+                            <button id="reveal-explanation-btn" onclick="revealExplanation(true)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-3.5 rounded-xl transition shadow-sm flex items-center justify-center gap-2 w-full sm:w-auto min-h-[44px]">
+                                <i class="fa-regular fa-lightbulb"></i> Reveal Explanation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concept explanation card layout (Full width) -->
+                <div id="explanation-container-wrapper" class="bg-slate-900 text-slate-100 rounded-2xl border border-slate-800 shadow-xl p-5 md:p-8">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
+                        <h4 class="text-xs font-black uppercase tracking-widest text-indigo-400 flex items-center gap-2">
+                            <i class="fa-solid fa-feather-pointed"></i> CONCEPT CORE & EXPLANATION
+                        </h4>
+                        <span class="text-[9px] bg-slate-800 text-slate-400 px-2 py-1 rounded font-mono uppercase">Key Focus</span>
+                    </div>
+
+                    <!-- Explanatory dynamic content block -->
+                    <div id="explanation-content-area" class="hidden">
+                        <div class="text-slate-200 text-sm md:text-base font-medium leading-relaxed whitespace-pre-wrap code-font" id="study-card-explanation">
+                            Analytical explanations or calculations show up here...
+                        </div>
+                    </div>
+
+                    <!-- Placeholder block when closed -->
+                    <div id="explanation-placeholder-area" class="flex flex-col items-center justify-center text-center py-8 text-slate-500">
+                        <i class="fa-solid fa-lock text-3xl mb-3 text-slate-600 animate-pulse"></i>
+                        <span class="text-xs font-extrabold tracking-wider uppercase block">Explanation Hidden</span>
+                        <span class="text-[11px] text-slate-500 block max-w-sm mt-1.5 px-4">Select an answer choice or click the "Reveal Explanation" button above to unpack detailed reasoning.</span>
+                    </div>
+
+                    <!-- Mini progress tracking -->
+                    <div class="bg-slate-800/40 rounded-xl p-4 mt-6 border border-slate-800/80">
+                        <div class="flex justify-between items-center text-xs text-slate-300 mb-2">
+                            <span id="study-progress-subject-label" class="font-bold">Active Deck</span>
+                            <span id="study-progress-pct-value" class="font-extrabold text-indigo-300">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                            <div id="study-progress-bar" class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PANEL 3: QUESTION BANK ================= -->
+        <section id="panel-bank" class="tab-panel hidden space-y-6 no-print">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-900">System Question Bank</h2>
+                    <p class="text-xs text-slate-500 font-medium">Review, filter, edit, or wipe stored question assets. Everything scrolls in complete top-to-bottom layout.</p>
+                </div>
+                
+                <!-- Top Actions row -->
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                    <button onclick="printEntireLibrary()" class="bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs px-5 py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 flex-grow sm:flex-grow-0 min-h-[44px]">
+                        <i class="fa-solid fa-file-pdf"></i> Export to PDF
+                    </button>
+                    <button onclick="switchTab('input')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-5 py-3.5 rounded-xl transition shadow-sm flex items-center justify-center gap-2 flex-grow sm:flex-grow-0 min-h-[44px]">
+                        <i class="fa-solid fa-plus"></i> Add New
+                    </button>
+                    <button onclick="promptResetBank()" class="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 text-xs font-bold px-5 py-3.5 rounded-xl transition flex-grow sm:flex-grow-0 min-h-[44px]">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Wipe All Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live Filter Block -->
+            <div class="bg-white p-5 border border-slate-200 rounded-2xl shadow-sm flex flex-col gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="relative w-full">
+                        <input type="text" id="bank-search-input" oninput="renderQuestionBank()" placeholder="Search questions, explanations, pages..." class="text-xs font-semibold bg-slate-50 border border-slate-300 rounded-xl px-4 py-3.5 pl-10 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all min-h-[44px]">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-4 text-slate-400 text-xs"></i>
+                    </div>
+
+                    <select id="bank-subject-filter" onchange="renderQuestionBank()" class="text-xs font-bold bg-white border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm w-full min-h-[44px]">
+                        <option value="all">All Subjects</option>
+                    </select>
+
+                    <select id="bank-book-filter" onchange="renderQuestionBank()" class="text-xs font-bold bg-white border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm w-full min-h-[44px]">
+                        <option value="all">All Reference Books</option>
+                    </select>
+
+                    <select id="bank-mastery-filter" onchange="renderQuestionBank()" class="text-xs font-bold bg-white border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm w-full min-h-[44px]">
+                        <option value="all">All Mastery States</option>
+                        <option value="mastered">Mastered Only</option>
+                        <option value="unmastered">Needs Practice Only</option>
+                    </select>
+                </div>
+
+                <!-- Record Indicator Counter -->
+                <div class="text-xs text-slate-500 font-extrabold" id="bank-record-count">
+                    Showing 0 of 0 Questions
+                </div>
+            </div>
+
+            <!-- Dynamic Question Cards Stream -->
+            <div class="space-y-6" id="bank-cards-container">
+                <!-- Populated dynamically via Javascript -->
+            </div>
+
+            <!-- Empty state fallback component -->
+            <div id="bank-empty-state" class="hidden text-center py-16 px-4 bg-white border border-slate-200 rounded-2xl">
+                <div class="bg-indigo-50 text-indigo-500 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-circle-question text-xl"></i>
+                </div>
+                <h4 class="text-base font-extrabold text-slate-800">No Questions Found</h4>
+                <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Create questions manually using the editor form or import an existing data file to start studying.</p>
+            </div>
+        </section>
+
+        <!-- ================= PANEL 4: BOOKS & SOURCES HUB ================= -->
+        <section id="panel-books" class="tab-panel hidden space-y-6 no-print">
+            <div>
+                <h2 class="text-xl font-extrabold text-slate-900">Reference Books & Sources</h2>
+                <p class="text-xs text-slate-500 font-medium">Index text resources, evaluate linked reference counts, and browse matching questions instantly.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Hand Manager Module (4 Cols) -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-white p-5 border border-slate-200 rounded-2xl shadow-sm space-y-4">
+                        <h3 class="text-xs font-black uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus-circle text-indigo-600"></i> Register New Book
+                        </h3>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase">Book Name</label>
+                            <input type="text" id="books-new-name" placeholder="e.g., Saifur's Analytical Ability" class="w-full text-xs font-semibold bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition min-h-[44px]">
+                        </div>
+                        <button onclick="saveNewBookFromHub()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs py-3.5 rounded-xl transition shadow-sm min-h-[44px]">
+                            Register in Library
+                        </button>
+                    </div>
+
+                    <!-- Book directory selector lists -->
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                        <div class="bg-slate-50 px-4 py-3.5 border-b border-slate-100 flex justify-between items-center">
+                            <span class="text-xs font-black uppercase tracking-wider text-slate-500">Registered Volumes</span>
+                            <span class="text-[10px] bg-slate-200 text-slate-700 font-mono px-2.5 py-1 rounded font-black" id="books-total-badge">0</span>
+                        </div>
+                        <div class="divide-y divide-slate-100 max-h-[350px] overflow-y-auto custom-scroll" id="books-list-container">
+                            <!-- Populated dynamically via state engine -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Hand Association Panel (8 Cols) -->
+                <div class="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col justify-between min-h-[450px]">
+                    <div class="space-y-6">
+                        <div class="border-b border-slate-100 pb-4">
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2" id="books-selected-title">
+                                    <i class="fa-solid fa-swatchbook text-indigo-600"></i> No Book Selected
+                                </h3>
+                                <span class="bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase px-2.5 py-1 rounded-md" id="books-assoc-count">
+                                    0 Linked Questions
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1" id="books-selected-meta">Select a reference book from the left directory panel to explore linked questions and page details.</p>
+                        </div>
+
+                        <!-- Scrollable linked query output -->
+                        <div class="space-y-3 max-h-[450px] overflow-y-auto custom-scroll pr-1" id="books-associated-questions-container">
+                            <div class="text-center py-16 text-slate-400">
+                                <i class="fa-solid fa-book-open-reader text-4xl mb-3 text-slate-300"></i>
+                                <span class="block text-xs font-bold uppercase tracking-wide">Select a Reference Resource</span>
+                                <span class="block text-[11px] text-slate-400 mt-1.5 px-4">Tapping a registered volume loaded on the left side menu renders matches and quick-jump portal nodes.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PANEL 5: ADD/EDIT FORM ================= -->
+        <section id="panel-input" class="tab-panel hidden max-w-3xl mx-auto space-y-6 no-print">
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 md:p-8 shadow-sm space-y-6">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-900" id="form-panel-title">Add New Study Question</h2>
+                        <p class="text-xs text-slate-400 font-medium">Log study metrics, multiple-choice structures, and detailed learning notes.</p>
+                    </div>
+                    <span class="text-[10px] bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded font-black uppercase" id="form-mode-badge">Create Mode</span>
+                </div>
+
+                <form id="question-editor-form" onsubmit="saveFormQuestion(event)" class="space-y-6">
+                    <input type="hidden" id="form-question-id" value="">
+
+                    <!-- Subject Categorization controls -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-2">Primary Category Subject</label>
+                            <select id="form-subject-select" onchange="toggleCustomSubjectInput()" class="w-full text-xs font-semibold bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition min-h-[44px]" required>
+                                <option value="Math">Mathematics & quantitative</option>
+                                <option value="English">English grammar & composition</option>
+                                <option value="General Knowledge (Bangladesh)">General Knowledge (Bangladesh)</option>
+                                <option value="General Knowledge (International)">General Knowledge (International)</option>
+                                <option value="Bangla">Bangla language & literature</option>
+                                <option value="General Science">General Science</option>
+                                <option value="Others">Others (Create Custom Subject)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Custom Subject name fallback -->
+                        <div id="custom-subject-wrapper" class="hidden">
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-2">Write Custom Subject Name</label>
+                            <input type="text" id="form-custom-subject" placeholder="e.g., Business Analytics" class="w-full text-xs font-semibold bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition min-h-[44px]">
+                        </div>
+                    </div>
+
+                    <!-- Question Body input -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-2">The Question Text</label>
+                        <textarea id="form-question-text" rows="3" placeholder="Write the main question question text..." class="w-full text-xs font-semibold bg-slate-50 border border-slate-300 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" required></textarea>
+                    </div>
+
+                    <!-- Choices/Options Fields -->
+                    <div class="space-y-4">
+                        <span class="block text-xs font-black text-slate-700 uppercase tracking-wide">Enter Choices / Options</span>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <div class="flex items-center bg-slate-50 rounded-xl border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 focus-within:bg-white transition">
+                                    <span class="px-4 py-3 text-xs font-black text-indigo-800 bg-indigo-50 border-r border-slate-200">A</span>
+                                    <input type="text" id="form-opt-a" placeholder="Option A description" class="w-full text-xs bg-transparent border-none py-3.5 px-4 focus:outline-none min-h-[44px]" required>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center bg-slate-50 rounded-xl border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 focus-within:bg-white transition">
+                                    <span class="px-4 py-3 text-xs font-black text-indigo-800 bg-indigo-50 border-r border-slate-200">B</span>
+                                    <input type="text" id="form-opt-b" placeholder="Option B description" class="w-full text-xs bg-transparent border-none py-3.5 px-4 focus:outline-none min-h-[44px]" required>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center bg-slate-50 rounded-xl border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 focus-within:bg-white transition">
+                                    <span class="px-4 py-3 text-xs font-black text-indigo-800 bg-indigo-50 border-r border-slate-200">C</span>
+                                    <input type="text" id="form-opt-c" placeholder="Option C description" class="w-full text-xs bg-transparent border-none py-3.5 px-4 focus:outline-none min-h-[44px]" required>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center bg-slate-50 rounded-xl border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 focus-within:bg-white transition">
+                                    <span class="px-4 py-3 text-xs font-black text-indigo-800 bg-indigo-50 border-r border-slate-200">D</span>
+                                    <input type="text" id="form-opt-d" placeholder="Option D description" class="w-full text-xs bg-transparent border-none py-3.5 px-4 focus:outline-none min-h-[44px]" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Answer Selection matrix -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-2">Designate Correct Choice Option</label>
+                        <select id="form-correct-choice" class="w-full sm:w-1/3 text-xs font-black bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition min-h-[44px]" required>
+                            <option value="A">Choice A</option>
+                            <option value="B">Choice B</option>
+                            <option value="C">Choice C</option>
+                            <option value="D">Choice D</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 md:p-5 space-y-4">
+                        <div class="flex justify-between items-center flex-wrap gap-2 border-b border-slate-200 pb-2">
+                            <span class="text-xs font-black text-slate-700 uppercase tracking-wide flex items-center gap-1.5">
+                                <i class="fa-solid fa-swatchbook text-indigo-600"></i> Reference Sources & Book Pages
+                            </span>
+                            <button type="button" onclick="addSourceRow()" class="text-[10px] bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-extrabold px-3.5 py-2 rounded-lg transition flex items-center gap-1 min-h-[36px]">
+                                <i class="fa-solid fa-plus"></i> Add Source Row
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-slate-400 font-semibold">Attach multiple indexed reference volumes and pinpoint specific chapters or pages.</p>
+
+                        <!-- Source inputs grid -->
+                        <div class="space-y-3" id="form-sources-container">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                        
+                        <!-- Mini Inline registration tool -->
+                        <div class="pt-3 border-t border-dashed border-slate-200 flex flex-wrap items-center gap-3">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Book not in directory?</span>
+                            <div class="flex gap-2 flex-grow sm:flex-grow-0">
+                                <input type="text" id="form-quick-book-name" placeholder="Quick Book Title" class="text-[11px] font-semibold bg-white border border-slate-300 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 w-full sm:w-48">
+                                <button type="button" onclick="quickAddBookFromForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-[10px] px-3.5 py-2 rounded-lg transition shrink-0 min-h-[36px]">
+                                    Register Book
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Master Explanation Text Box -->
+                    <div class="bg-indigo-50/40 p-4 rounded-xl border border-indigo-100">
+                        <label class="block text-xs font-black text-indigo-950 uppercase tracking-wider mb-2">Concept Rationale & Detailed Explanation</label>
+                        <span class="text-[10px] text-indigo-700/80 block mb-3 font-medium">Write comprehensive notes, formulas, step-by-step logic, or context references that help you study.</span>
+                        <textarea id="form-explanation" rows="6" placeholder="Document theoretical foundations or math solutions here..." class="w-full text-xs font-medium bg-white border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-inner leading-relaxed" required></textarea>
+                    </div>
+
+                    <!-- Submit / Reset layout -->
+                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                        <button type="button" onclick="cancelQuestionForm()" class="px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold rounded-xl transition min-h-[44px]">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold rounded-xl transition shadow-md min-h-[44px]">
+                            Save Concept to Bank
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= PANEL 6: IMPORT / EXPORT & SYNC ================= -->
+        <section id="panel-backup" class="tab-panel hidden max-w-2xl mx-auto space-y-6 no-print">
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 md:p-8 shadow-sm space-y-6">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-900">Backup & Directory Sync Center</h2>
+                    <p class="text-xs text-slate-400 font-medium mt-0.5">Secure your study library locally. Sync directly to a specified folder or download standard JSON schema archives.</p>
+                </div>
+
+                <!-- NEW: Dynamic Local Folder Sync UI Component -->
+                <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-5 md:p-6 rounded-2xl shadow-lg border border-indigo-800 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-indigo-600/30 p-2.5 rounded-xl border border-indigo-500 text-indigo-400 text-xl">
+                            <i class="fa-solid fa-folder-open"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold tracking-wide">Direct Folder Sync (Chrome / Edge / Opera)</h3>
+                            <p class="text-[10px] text-slate-300 mt-0.5 font-medium">Link a local folder to sync files instantly with one click.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 rounded-xl p-4 border border-slate-800 text-center">
+                        <span id="selected-folder-name" class="text-xs font-bold text-slate-300 block italic">No Local Folder Linked yet</span>
+                        <p class="text-[10px] text-slate-400 mt-1 max-w-md mx-auto">Authorize directory permission to save backups directly to a dedicated local directory of your choice.</p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <button onclick="selectBackupFolder()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs px-5 py-3.5 rounded-xl transition flex-grow flex items-center justify-center gap-2 min-h-[44px]">
+                            <i class="fa-solid fa-link"></i> Link local directory folder
+                        </button>
+                        <button id="sync-folder-btn" onclick="syncBackupToFolder()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-5 py-3.5 rounded-xl transition flex-grow flex items-center justify-center gap-2 min-h-[44px]">
+                            <i class="fa-solid fa-arrows-rotate"></i> Sync Library to Folder
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Export/Import Standard Utilities -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Standard Download Box -->
+                    <div class="bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100 flex flex-col justify-between">
+                        <div>
+                            <span class="bg-indigo-100 text-indigo-800 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded">Offline Safe</span>
+                            <h3 class="text-sm font-bold text-slate-800 mt-3">Download JSON Backup</h3>
+                            <p class="text-[11px] text-slate-500 mt-2 leading-relaxed font-medium">Compiles active questions, choices, references, and explanation databases into a static downloadable backup file.</p>
+                        </div>
+                        <button onclick="exportQuestionLibrary()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs px-4 py-3.5 rounded-xl transition shadow-md w-full mt-5 flex items-center justify-center gap-2 min-h-[44px]">
+                            <i class="fa-solid fa-file-export"></i> Download Standard JSON
+                        </button>
+                    </div>
+
+                    <!-- Import Box -->
+                    <div class="bg-emerald-50/40 p-5 rounded-2xl border border-emerald-100 flex flex-col justify-between">
+                        <div>
+                            <span class="bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded">Sync Tool</span>
+                            <h3 class="text-sm font-bold text-slate-800 mt-3">Import JSON Backup</h3>
+                            <p class="text-[11px] text-slate-500 mt-2 leading-relaxed font-medium">Select a previously exported study JSON library file to completely restore your settings.</p>
+                        </div>
+                        
+                        <div class="mt-5">
+                            <input type="file" id="import-file-selector" class="hidden" accept=".json" onchange="importQuestionLibrary(event)">
+                            <button onclick="triggerImportSelection()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs px-4 py-3.5 rounded-xl transition shadow-md w-full flex items-center justify-center gap-2 min-h-[44px]">
+                                <i class="fa-solid fa-file-import"></i> Choose & Load JSON File
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PDF Layout Trigger -->
+                <div class="border border-slate-200 rounded-xl p-5 bg-slate-50 flex items-center justify-between flex-wrap gap-4">
+                    <div class="space-y-1">
+                        <h4 class="text-sm font-bold text-slate-900">PDF Booklet Generator</h4>
+                        <p class="text-xs text-slate-500">Formats all cataloged entries into a clean print-ready structural layout.</p>
+                    </div>
+                    <button onclick="printEntireLibrary()" class="bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs px-5 py-3.5 rounded-xl shadow-md flex items-center gap-2 min-h-[44px] w-full sm:w-auto justify-center">
+                        <i class="fa-solid fa-file-pdf"></i> Generate Printable PDF
+                    </button>
+                </div>
+
+                <!-- Github warning cards -->
+                <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-4 text-xs text-slate-600 space-y-2">
+                    <h4 class="font-extrabold text-amber-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-exclamation"></i> GitHub Pages Cache Guidelines:
+                    </h4>
+                    <p class="leading-relaxed font-medium">
+                        Since GitHub Pages serving is static, local client cache wipes might erase browser databases. We highly recommend syncing to a folder or exporting a **JSON backup** after major data updates to keep your records safe!
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= EXPORT CANVAS (PDF PRINT TEMPLATE) ================= -->
+        <section id="print-preview-panel" class="hidden p-8 space-y-6">
+            <div class="border-b-4 border-slate-900 pb-4 mb-6">
+                <h1 class="text-2xl font-black uppercase text-slate-900 tracking-tight">Personal Study Hub Library</h1>
+                <p class="text-sm text-slate-600 font-medium">Automated Revision Booklet & Multi-Source Reference Guide</p>
+                <p class="text-xs text-slate-500 font-medium mt-1">Total compiled study materials compiled within local sandbox.</p>
+            </div>
+            
+            <div class="space-y-6" id="print-questions-flow">
+                <!-- Loaded dynamically on print trigger -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer credit blocks -->
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 mt-12 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs space-y-2 font-medium">
+            <p class="text-slate-500">Personal Knowledge Hub & Reference Engine. All assets stored locally under browser-level data.</p>
+            <p>© 2026 Personal Study Companion. Made for structured concept mastery.</p>
+        </div>
+    </footer>
+
+    <!-- ================= JAVASCRIPT STATE ENGINE ================= -->
+    <script>
+        // State variables
+        let appState = {
+            questions: [],
+            books: [],
+            activeTab: 'dashboard',
+            studySession: {
+                filteredIndexList: [],
+                activePointer: 0,
+                selectedOption: null,
+                explanationRevealed: false
+            }
+        };
+
+        // Track temporary rows in active editor input forms
+        let activeFormSources = [];
+
+        // Dynamic local directory handle cache
+        let directoryHandle = null;
+
+        // Static Sample Data to bootstrap the application on first load
+        const bootstrapMockBooks = [
+            { id: "book-1", name: "Professors BCS Preliminary Digest" },
+            { id: "book-2", name: "George's MP3 Bangladesh GK" },
+            { id: "book-3", name: "Saifur's Competitive English" },
+            { id: "book-4", name: "Barron's New SAT Practice" }
+        ];
+
+        const bootstrapMockData = [
+            {
+                id: "mock-1",
+                subject: "Math",
+                question: "In a class of 40 students, 60% are boys. How many girls are there in the class?",
+                options: ["16", "24", "12", "20"],
+                correctAnswer: "A",
+                explanation: "Total student count = 40.\nPercentage of boys = 60%, meaning Percentage of girls = 100% - 60% = 40%.\nNumber of girls = 40% of 40 = (40/100) * 40 = 16.",
+                mastered: false,
+                createdOn: new Date().toISOString(),
+                sources: [
+                    { bookId: "book-1", page: "256" },
+                    { bookId: "book-4", page: "92" }
+                ]
+            },
+            {
+                id: "mock-2",
+                subject: "English",
+                question: "Identify the correct sentence structure for conditional syntax:",
+                options: [
+                    "If she worked hard, she will pass.",
+                    "If she had worked hard, she would have passed.",
+                    "If she works hard, she would pass.",
+                    "If she worked hard, she would have passed."
+                ],
+                correctAnswer: "B",
+                explanation: "This tests the Third Conditional (impossible conditions in the past and their hypothetical result).\nStructure: If + past perfect (had worked), would have + past participle (would have passed).",
+                mastered: false,
+                createdOn: new Date().toISOString(),
+                sources: [
+                    { bookId: "book-3", page: "114" }
+                ]
+            },
+            {
+                id: "mock-3",
+                subject: "General Knowledge (Bangladesh)",
+                question: "Which sector contributed the highest share to Bangladesh GDP in the last physical fiscal year?",
+                options: ["Agriculture Sector", "Industrial Sector", "Services Sector", "Remittance Sector"],
+                correctAnswer: "C",
+                explanation: "The Services sector remains the dominant structural contributor to Bangladesh's Gross Domestic Product (GDP), representing roughly 51-53% of the total GDP layout.",
+                mastered: false,
+                createdOn: new Date().toISOString(),
+                sources: [
+                    { bookId: "book-2", page: "41" },
+                    { bookId: "book-1", page: "302" }
+                ]
+            }
+        ];
+
+        // Main Boot Process
+        window.onload = function() {
+            loadLibraryFromStorage();
+            switchTab('dashboard');
+        };
+
+        // Load data from LocalStorage or seed default template
+        function loadLibraryFromStorage() {
+            const rawQ = localStorage.getItem('study_hub_questions');
+            const rawB = localStorage.getItem('study_hub_books');
+            
+            if (rawB) {
+                try {
+                    appState.books = JSON.parse(rawB);
+                } catch (e) {
+                    appState.books = [...bootstrapMockBooks];
+                }
+            } else {
+                appState.books = [...bootstrapMockBooks];
+                localStorage.setItem('study_hub_books', JSON.stringify(appState.books));
+            }
+
+            if (rawQ) {
+                try {
+                    appState.questions = JSON.parse(rawQ);
+                    appState.questions.forEach(q => {
+                        if (!q.sources) q.sources = [];
+                    });
+                } catch (e) {
+                    showToast("Failed to parse local database. Loading template.", "error");
+                    appState.questions = [...bootstrapMockData];
+                }
+            } else {
+                appState.questions = [...bootstrapMockData];
+                saveLibraryToStorage();
+            }
+            refreshAllUIPanels();
+        }
+
+        // Commit active system state arrays to LocalStorage
+        function saveLibraryToStorage() {
+            localStorage.setItem('study_hub_questions', JSON.stringify(appState.questions));
+            localStorage.setItem('study_hub_books', JSON.stringify(appState.books));
+        }
+
+        function switchTab(targetTabId) {
+            appState.activeTab = targetTabId;
+            
+            // Hide all tab panels
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+            
+            // Show targeted tab panel
+            const activePanel = document.getElementById(`panel-${targetTabId}`);
+            if (activePanel) activePanel.classList.remove('hidden');
+
+            // Handle styling indices for responsive navigation elements
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.id === `nav-${targetTabId}`) {
+                    btn.classList.remove('text-indigo-200');
+                    btn.classList.add('bg-indigo-800/80', 'text-white', 'border-b-2', 'border-emerald-400');
+                } else {
+                    btn.classList.add('text-indigo-200');
+                    btn.classList.remove('bg-indigo-800/80', 'text-white', 'border-b-2', 'border-emerald-400');
+                }
+            });
+
+            // Automatically collapse mobile drawer on tab choice
+            document.getElementById('mobile-menu').classList.add('hidden');
+
+            // Dispatch dynamic UI renders
+            if (targetTabId === 'dashboard') {
+                renderDashboardMetrics();
+            } else if (targetTabId === 'study') {
+                populateSubjectDropdown('study-subject-filter');
+                startStudySession();
+            } else if (targetTabId === 'bank') {
+                populateSubjectDropdown('bank-subject-filter');
+                populateBookFilterDropdown('bank-book-filter');
+                renderQuestionBank();
+            } else if (targetTabId === 'books') {
+                renderBooksTab();
+            } else if (targetTabId === 'input') {
+                toggleCustomSubjectInput();
+            }
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // Extract and map all unique subjects in database
+        function extractAllUniqueSubjects() {
+            const defaults = [
+                "Math", 
+                "English", 
+                "General Knowledge (Bangladesh)", 
+                "General Knowledge (International)", 
+                "Bangla", 
+                "General Science"
+            ];
+            
+            const fromDatabase = appState.questions.map(q => q.subject);
+            const combinedSet = new Set([...defaults, ...fromDatabase]);
+            return Array.from(combinedSet).filter(s => s && s.trim() !== "");
+        }
+
+        // Populate dropdown selectors dynamically
+        function populateSubjectDropdown(selectElementId) {
+            const selectEl = document.getElementById(selectElementId);
+            if (!selectEl) return;
+
+            const originalVal = selectEl.value;
+            selectEl.innerHTML = selectElementId === 'study-subject-filter' 
+                ? '<option value="all">All Available Subjects</option>' 
+                : '<option value="all">All Subjects</option>';
+
+            const subjects = extractAllUniqueSubjects();
+            subjects.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub;
+                opt.innerText = sub;
+                selectEl.appendChild(opt);
+            });
+
+            if (originalVal && Array.from(selectEl.options).some(o => o.value === originalVal)) {
+                selectEl.value = originalVal;
+            }
+        }
+
+        // Populate book source search filter elements
+        function populateBookFilterDropdown(selectElementId) {
+            const selectEl = document.getElementById(selectElementId);
+            if (!selectEl) return;
+
+            const originalVal = selectEl.value;
+            selectEl.innerHTML = '<option value="all">All Reference Books</option>';
+
+            appState.books.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.id;
+                opt.innerText = b.name;
+                selectEl.appendChild(opt);
+            });
+
+            if (originalVal && Array.from(selectEl.options).some(o => o.value === originalVal)) {
+                selectEl.value = originalVal;
+            }
+        }
+
+        function renderDashboardMetrics() {
+            const total = appState.questions.length;
+            const mastered = appState.questions.filter(q => q.mastered).length;
+            const unmastered = total - mastered;
+            const uniqueBooks = appState.books.length;
+
+            document.getElementById('stat-total-q').innerText = total;
+            document.getElementById('stat-mastered').innerText = mastered;
+            document.getElementById('stat-mastered-pct').innerText = total > 0 ? `${Math.round((mastered / total) * 100)}% of total pool` : "0% of total pool";
+            document.getElementById('stat-unmastered').innerText = unmastered;
+            document.getElementById('stat-books-count').innerText = uniqueBooks;
+
+            const container = document.getElementById('dashboard-subject-distribution');
+            container.innerHTML = "";
+
+            if (total === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-slate-400 text-xs font-bold">
+                        No subject data logged yet. Create some questions to view analysis metrics!
+                    </div>
+                `;
+                return;
+            }
+
+            const subjectsInDb = Array.from(new Set(appState.questions.map(q => q.subject)));
+            subjectsInDb.forEach(sub => {
+                const subQuestions = appState.questions.filter(q => q.subject === sub);
+                const subTotal = subQuestions.length;
+                const subMastered = subQuestions.filter(q => q.mastered).length;
+                const progressPct = subTotal > 0 ? Math.round((subMastered / subTotal) * 100) : 0;
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-black text-slate-800 leading-tight uppercase max-w-[70%]">${sub}</span>
+                            <span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md font-mono font-bold">${subTotal} Qs</span>
+                        </div>
+                        <div class="flex items-center gap-2 mt-4 text-xs font-bold text-slate-500">
+                            <span>Mastered: ${subMastered}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex justify-between items-center text-[10px] font-black text-slate-500 mb-1">
+                            <span>Mastery Rate</span>
+                            <span>${progressPct}%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div class="bg-indigo-600 h-full rounded-full" style="width: ${progressPct}%"></div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Start Study Flashcard session with subject parameters
+        function startStudySession() {
+            const filterVal = document.getElementById('study-subject-filter').value;
+            
+            appState.studySession.filteredIndexList = [];
+            appState.questions.forEach((q, idx) => {
+                if (filterVal === 'all' || q.subject === filterVal) {
+                    appState.studySession.filteredIndexList.push(idx);
+                }
+            });
+
+            appState.studySession.activePointer = 0;
+            appState.studySession.selectedOption = null;
+            appState.studySession.explanationRevealed = false;
+
+            renderStudyCard();
+        }
+
+        // Retrieve book name mappings
+        function getBookNameById(bookId) {
+            const book = appState.books.find(b => b.id === bookId);
+            return book ? book.name : "Unknown Volume";
+        }
+
+        function renderStudyCard() {
+            const indices = appState.studySession.filteredIndexList;
+            const pointer = appState.studySession.activePointer;
+
+            const subjectLabel = document.getElementById('study-card-subject');
+            const counterLabel = document.getElementById('study-card-counter');
+            const questionText = document.getElementById('study-card-question');
+            const optionsContainer = document.getElementById('study-options-container');
+            const sourcesContainer = document.getElementById('study-card-sources');
+
+            if (indices.length === 0) {
+                subjectLabel.innerText = "Empty";
+                counterLabel.innerText = "Question 0 of 0";
+                questionText.innerText = "No questions found matching selected subject category.";
+                optionsContainer.innerHTML = "";
+                sourcesContainer.innerHTML = "";
+                revealExplanation(false);
+                updateStudyProgressIndicator(0, 0);
+                return;
+            }
+
+            const activeIndex = indices[pointer];
+            const qData = appState.questions[activeIndex];
+
+            subjectLabel.innerText = qData.subject;
+            counterLabel.innerText = `Question ${pointer + 1} of ${indices.length}`;
+            questionText.innerText = qData.question;
+
+            // Render reference sources badges
+            sourcesContainer.innerHTML = "";
+            if (qData.sources && qData.sources.length > 0) {
+                qData.sources.forEach(src => {
+                    const badge = document.createElement('span');
+                    badge.className = "bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-semibold px-2.5 py-1 rounded flex items-center gap-1 shadow-sm shrink-0";
+                    badge.innerHTML = `<i class="fa-solid fa-swatchbook text-indigo-500"></i> ${escapeHtml(getBookNameById(src.bookId))} <span class="font-bold text-slate-800">p. ${escapeHtml(src.page)}</span>`;
+                    sourcesContainer.appendChild(badge);
+                });
+            } else {
+                const emptyBadge = document.createElement('span');
+                emptyBadge.className = "text-[10px] text-slate-400 font-medium italic";
+                emptyBadge.innerText = "No book references indexed.";
+                sourcesContainer.appendChild(emptyBadge);
+            }
+
+            const masteredIndicator = document.getElementById('study-mastered-indicator');
+            const masterCheckbox = document.getElementById('study-master-checkbox');
+            
+            if (qData.mastered) {
+                masteredIndicator.classList.remove('hidden');
+                masterCheckbox.className = "fa-solid fa-circle-check text-emerald-600 text-xl";
+            } else {
+                masteredIndicator.classList.add('hidden');
+                masterCheckbox.className = "fa-regular fa-circle text-slate-300 text-xl hover:text-emerald-500";
+            }
+
+            // Render Options in 2x2 responsive structure
+            optionsContainer.innerHTML = "";
+            const optLetter = ["A", "B", "C", "D"];
+            
+            qData.options.forEach((optText, index) => {
+                const letter = optLetter[index];
+                const optButton = document.createElement('button');
+                optButton.className = "w-full text-left p-4 rounded-xl border font-semibold text-xs sm:text-sm transition flex items-center gap-3 focus:outline-none min-h-[52px] active:scale-[0.99] transform ";
+                
+                if (appState.studySession.selectedOption === null) {
+                    optButton.className += "border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700";
+                    optButton.onclick = function() { selectStudyOption(letter); };
+                } else {
+                    if (letter === qData.correctAnswer) {
+                        optButton.className += "border-emerald-300 bg-emerald-50 text-emerald-900 font-extrabold";
+                    } else if (letter === appState.studySession.selectedOption) {
+                        optButton.className += "border-red-300 bg-red-50 text-red-950 font-bold";
+                    } else {
+                        optButton.className += "border-slate-100 bg-slate-50/50 text-slate-400";
+                    }
+                }
+
+                let badgeClass = "bg-slate-200 text-slate-700";
+                if (appState.studySession.selectedOption !== null) {
+                    if (letter === qData.correctAnswer) badgeClass = "bg-emerald-600 text-white";
+                    else if (letter === appState.studySession.selectedOption) badgeClass = "bg-red-600 text-white";
+                }
+
+                optButton.innerHTML = `
+                    <span class="${badgeClass} w-8 h-8 flex items-center justify-center rounded-lg text-xs font-black shrink-0 shadow-inner">${letter}</span>
+                    <span class="leading-relaxed truncate-2-lines">${optText}</span>
+                `;
+                optionsContainer.appendChild(optButton);
+            });
+
+            // Adjust display state for full-width explanation blocks
+            if (appState.studySession.explanationRevealed) {
+                document.getElementById('study-card-explanation').innerText = qData.explanation;
+                document.getElementById('explanation-content-area').classList.remove('hidden');
+                document.getElementById('explanation-placeholder-area').classList.add('hidden');
+                document.getElementById('reveal-explanation-btn').className = "bg-slate-200 text-slate-400 font-extrabold text-xs px-6 py-3.5 rounded-xl transition flex items-center justify-center gap-2 cursor-not-allowed w-full sm:w-auto min-h-[44px]";
+                document.getElementById('reveal-explanation-btn').disabled = true;
+            } else {
+                document.getElementById('explanation-content-area').classList.add('hidden');
+                document.getElementById('explanation-placeholder-area').classList.remove('hidden');
+                document.getElementById('reveal-explanation-btn').className = "bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-3.5 rounded-xl transition shadow-sm flex items-center justify-center gap-2 w-full sm:w-auto min-h-[44px]";
+                document.getElementById('reveal-explanation-btn').disabled = false;
+            }
+
+            const activeSubject = qData.subject;
+            const sameSubjectQs = appState.questions.filter(q => q.subject === activeSubject);
+            const sameSubjectMastered = sameSubjectQs.filter(q => q.mastered).length;
+            updateStudyProgressIndicator(activeSubject, sameSubjectQs.length, sameSubjectMastered);
+        }
+
+        function selectStudyOption(letter) {
+            if (appState.studySession.selectedOption !== null) return;
+
+            appState.studySession.selectedOption = letter;
+            appState.studySession.explanationRevealed = true;
+
+            const indices = appState.studySession.filteredIndexList;
+            const pointer = appState.studySession.activePointer;
+            const activeIndex = indices[pointer];
+            const qData = appState.questions[activeIndex];
+
+            if (letter === qData.correctAnswer) {
+                showToast("Correct choice! Detailed explanation unlocked below.", "success");
+            } else {
+                showToast(`Incorrect. Correct choice was option ${qData.correctAnswer}.`, "error");
+            }
+
+            renderStudyCard();
+        }
+
+        function revealExplanation(shouldForce) {
+            if (appState.studySession.filteredIndexList.length === 0) return;
+
+            appState.studySession.explanationRevealed = shouldForce;
+            renderStudyCard();
+        }
+
+        function navigateStudy(step) {
+            const totalItems = appState.studySession.filteredIndexList.length;
+            if (totalItems === 0) return;
+
+            let newPointer = appState.studySession.activePointer + step;
+            if (newPointer < 0) {
+                newPointer = totalItems - 1;
+            } else if (newPointer >= totalItems) {
+                newPointer = 0;
+            }
+
+            appState.studySession.activePointer = newPointer;
+            appState.studySession.selectedOption = null;
+            appState.studySession.explanationRevealed = false;
+            renderStudyCard();
+        }
+
+        function toggleStudyMastered() {
+            const indices = appState.studySession.filteredIndexList;
+            if (indices.length === 0) return;
+
+            const pointer = appState.studySession.activePointer;
+            const activeIndex = indices[pointer];
+            
+            appState.questions[activeIndex].mastered = !appState.questions[activeIndex].mastered;
+            saveLibraryToStorage();
+            
+            showToast(appState.questions[activeIndex].mastered ? "Marked as mastered." : "Returned to practice pool.", "success");
+            renderStudyCard();
+        }
+
+        function updateStudyProgressIndicator(subjectName, totalCount, masteredCount) {
+            const label = document.getElementById('study-progress-subject-label');
+            const pctLabel = document.getElementById('study-progress-pct-value');
+            const bar = document.getElementById('study-progress-bar');
+
+            if (totalCount === 0) {
+                label.innerText = "No active subject deck";
+                pctLabel.innerText = "0%";
+                bar.style.width = "0%";
+                return;
+            }
+
+            const pct = Math.round((masteredCount / totalCount) * 100);
+            label.innerText = `${subjectName} Deck`;
+            pctLabel.innerText = `${pct}%`;
+            bar.style.width = `${pct}%`;
+        }
+
+        function renderQuestionBank() {
+            const container = document.getElementById('bank-cards-container');
+            const emptyState = document.getElementById('bank-empty-state');
+            const countLabel = document.getElementById('bank-record-count');
+
+            container.innerHTML = "";
+
+            const searchQuery = document.getElementById('bank-search-input').value.toLowerCase();
+            const subjectFilter = document.getElementById('bank-subject-filter').value;
+            const bookFilter = document.getElementById('bank-book-filter').value;
+            const masteryFilter = document.getElementById('bank-mastery-filter').value;
+
+            const filtered = appState.questions.filter(q => {
+                const matchesSearch = q.question.toLowerCase().includes(searchQuery) || 
+                                      q.explanation.toLowerCase().includes(searchQuery);
+                const matchesSubject = (subjectFilter === 'all' || q.subject === subjectFilter);
+                
+                let matchesBook = true;
+                if (bookFilter !== 'all') {
+                    matchesBook = q.sources && q.sources.some(src => src.bookId === bookFilter);
+                }
+
+                let matchesMastery = true;
+                if (masteryFilter === 'mastered') matchesMastery = q.mastered;
+                else if (masteryFilter === 'unmastered') matchesMastery = !q.mastered;
+
+                return matchesSearch && matchesSubject && matchesBook && matchesMastery;
+            });
+
+            countLabel.innerText = `Showing ${filtered.length} of ${appState.questions.length} Questions`;
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            filtered.forEach(q => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200/80 rounded-2xl p-5 md:p-6 shadow-sm space-y-4 hover:shadow-md transition-shadow relative";
+                card.id = `bank-q-card-${q.id}`;
+
+                let subjectBadgeColor = "bg-slate-100 text-slate-700";
+                if (q.subject.startsWith("Math")) subjectBadgeColor = "bg-red-50 text-red-700 border border-red-100";
+                else if (q.subject.startsWith("English")) subjectBadgeColor = "bg-blue-50 text-blue-700 border border-blue-100";
+                else if (q.subject.includes("Bangladesh")) subjectBadgeColor = "bg-emerald-50 text-emerald-700 border border-emerald-100";
+                else if (q.subject.includes("International")) subjectBadgeColor = "bg-purple-50 text-purple-700 border border-purple-100";
+                else if (q.subject.startsWith("Bangla")) subjectBadgeColor = "bg-amber-50 text-amber-700 border border-amber-100";
+                else if (q.subject.startsWith("General Science")) subjectBadgeColor = "bg-cyan-50 text-cyan-700 border border-cyan-100";
+
+                let sourcesBadgesHtml = "";
+                if (q.sources && q.sources.length > 0) {
+                    q.sources.forEach(src => {
+                        sourcesBadgesHtml += `
+                            <span class="bg-indigo-50/50 text-indigo-700 border border-indigo-100 text-[10px] font-bold px-2.5 py-1.5 rounded flex items-center gap-1 shadow-sm shrink-0">
+                                <i class="fa-solid fa-swatchbook text-indigo-500"></i> ${escapeHtml(getBookNameById(src.bookId))} (p. ${escapeHtml(src.page)})
+                            </span>
+                        `;
+                    });
+                } else {
+                    sourcesBadgesHtml = `<span class="text-[10px] text-slate-400 font-medium italic">No indexed reference sources.</span>`;
+                }
+
+                card.innerHTML = `
+                    <!-- Header parameters -->
+                    <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] uppercase font-black px-2.5 py-1.5 rounded-md tracking-wider ${subjectBadgeColor}">
+                                ${q.subject}
+                            </span>
+                            <button onclick="toggleRowMastery('${q.id}')" class="focus:outline-none min-h-[32px]">
+                                ${q.mastered ? 
+                                    `<span class="bg-emerald-50 text-emerald-700 text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-md border border-emerald-200"><i class="fa-solid fa-circle-check"></i> Mastered</span>` : 
+                                    `<span class="bg-slate-100 text-slate-400 text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-md border border-slate-200"><i class="fa-regular fa-clock"></i> Practice</span>`
+                                }
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="triggerEditQuestion('${q.id}')" class="p-2.5 bg-slate-50 hover:bg-slate-100 hover:text-indigo-600 rounded-lg transition text-slate-500 min-h-[40px] min-w-[40px] flex items-center justify-center" title="Edit Question">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="triggerDeleteQuestion('${q.id}')" class="p-2.5 bg-slate-50 hover:bg-red-50 hover:text-red-600 rounded-lg transition text-slate-500 min-h-[40px] min-w-[40px] flex items-center justify-center" title="Delete Question">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Question Body -->
+                    <div class="space-y-1">
+                        <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block">Question</span>
+                        <p class="font-extrabold text-slate-900 text-sm md:text-base leading-relaxed">${escapeHtml(q.question)}</p>
+                    </div>
+
+                    <!-- Options lists -->
+                    <div class="space-y-1.5">
+                        <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block">Answer Choices</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                            <div class="flex items-center gap-2.5 text-xs font-semibold ${q.correctAnswer === 'A' ? 'text-emerald-700 font-bold' : 'text-slate-600'}">
+                                <span class="w-6 h-6 flex items-center justify-center rounded-md font-black text-[10px] ${q.correctAnswer === 'A' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}">A</span>
+                                <span>${escapeHtml(q.options[0])}</span>
+                            </div>
+                            <div class="flex items-center gap-2.5 text-xs font-semibold ${q.correctAnswer === 'B' ? 'text-emerald-700 font-bold' : 'text-slate-600'}">
+                                <span class="w-6 h-6 flex items-center justify-center rounded-md font-black text-[10px] ${q.correctAnswer === 'B' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}">B</span>
+                                <span>${escapeHtml(q.options[1])}</span>
+                            </div>
+                            <div class="flex items-center gap-2.5 text-xs font-semibold ${q.correctAnswer === 'C' ? 'text-emerald-700 font-bold' : 'text-slate-600'}">
+                                <span class="w-6 h-6 flex items-center justify-center rounded-md font-black text-[10px] ${q.correctAnswer === 'C' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}">C</span>
+                                <span>${escapeHtml(q.options[2])}</span>
+                            </div>
+                            <div class="flex items-center gap-2.5 text-xs font-semibold ${q.correctAnswer === 'D' ? 'text-emerald-700 font-bold' : 'text-slate-600'}">
+                                <span class="w-6 h-6 flex items-center justify-center rounded-md font-black text-[10px] ${q.correctAnswer === 'D' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}">D</span>
+                                <span>${escapeHtml(q.options[3])}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Referenced Books -->
+                    <div class="space-y-1.5">
+                        <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block">Reference Sources</span>
+                        <div class="flex flex-wrap gap-2">
+                            ${sourcesBadgesHtml}
+                        </div>
+                    </div>
+
+                    <!-- Explanation Area -->
+                    <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100/60 space-y-2">
+                        <span class="text-[10px] text-indigo-800 font-black uppercase tracking-wider block flex items-center gap-1.5">
+                            <i class="fa-solid fa-feather-pointed"></i> Concept Explanation & Core Rationale
+                        </span>
+                        <div class="text-xs text-slate-700 font-medium whitespace-pre-wrap leading-relaxed code-font">
+                            ${escapeHtml(q.explanation)}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleRowMastery(id) {
+            const index = appState.questions.findIndex(q => q.id === id);
+            if (index > -1) {
+                appState.questions[index].mastered = !appState.questions[index].mastered;
+                saveLibraryToStorage();
+                showToast(appState.questions[index].mastered ? "Marked as mastered." : "Marked for active practice.", "success");
+                renderQuestionBank();
+            }
+        }
+
+        function renderBooksTab() {
+            document.getElementById('books-total-badge').innerText = appState.books.length;
+            
+            const listContainer = document.getElementById('books-list-container');
+            listContainer.innerHTML = "";
+
+            if (appState.books.length === 0) {
+                listContainer.innerHTML = `<div class="text-center py-6 text-xs text-slate-400 font-semibold italic">No reference books cataloged yet.</div>`;
+                return;
+            }
+
+            appState.books.forEach(b => {
+                const assocCount = appState.questions.filter(q => q.sources && q.sources.some(src => src.bookId === b.id)).length;
+                
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition cursor-pointer select-none group min-h-[48px]";
+                item.onclick = (e) => {
+                    if (e.target.closest('.action-btn')) return;
+                    selectBookInHub(b.id);
+                };
+
+                item.innerHTML = `
+                    <div class="flex-grow">
+                        <span class="text-xs font-extrabold text-slate-800 block group-hover:text-indigo-600 transition truncate max-w-[200px]">${escapeHtml(b.name)}</span>
+                        <span class="text-[10px] text-slate-400 font-semibold uppercase block">${assocCount} linked questions</span>
+                    </div>
+                    <div class="flex items-center gap-1 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="triggerEditBookName('${b.id}')" class="action-btn p-2 hover:text-indigo-600 rounded text-slate-400 transition min-w-[36px] min-h-[36px] flex items-center justify-center" title="Rename Book">
+                            <i class="fa-solid fa-pen text-[11px]"></i>
+                        </button>
+                        <button onclick="triggerDeleteBook('${b.id}')" class="action-btn p-2 hover:text-red-600 rounded text-slate-400 transition min-w-[36px] min-h-[36px] flex items-center justify-center" title="Delete Book">
+                            <i class="fa-solid fa-trash text-[11px]"></i>
+                        </button>
+                    </div>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        // Add dynamic books to memory state
+        function saveNewBookFromHub() {
+            const input = document.getElementById('books-new-name');
+            const name = input.value.trim();
+
+            if (!name) {
+                showToast("Please enter a valid book name.", "error");
+                return;
+            }
+
+            if (appState.books.some(b => b.name.toLowerCase() === name.toLowerCase())) {
+                showToast("Book already registered in database.", "error");
+                return;
+            }
+
+            const newBook = {
+                id: 'book-' + Date.now(),
+                name: name
+            };
+
+            appState.books.push(newBook);
+            saveLibraryToStorage();
+            input.value = "";
+            renderBooksTab();
+            populateBookFilterDropdown('bank-book-filter');
+            showToast("Reference book registered successfully!", "success");
+        }
+
+        function triggerEditBookName(bookId) {
+            const book = appState.books.find(b => b.id === bookId);
+            if (!book) return;
+
+            // Using modal context prompts to replace standard prompt
+            const newName = prompt(`Enter new name for resource "${book.name}":`, book.name);
+            if (newName && newName.trim() !== "") {
+                book.name = newName.trim();
+                saveLibraryToStorage();
+                renderBooksTab();
+                populateBookFilterDropdown('bank-book-filter');
+                showToast("Book renamed successfully!", "success");
+            }
+        }
+
+        function triggerDeleteBook(bookId) {
+            const book = appState.books.find(b => b.id === bookId);
+            if (!book) return;
+
+            const linkedQsCount = appState.questions.filter(q => q.sources && q.sources.some(src => src.bookId === bookId)).length;
+
+            showConfirmModal(
+                "Delete Reference Book?",
+                `Are you sure you want to delete "${book.name}"? This is linked with ${linkedQsCount} question(s). All associated page markers will be removed.`,
+                function() {
+                    appState.books = appState.books.filter(b => b.id !== bookId);
+                    
+                    appState.questions.forEach(q => {
+                        if (q.sources) {
+                            q.sources = q.sources.filter(src => src.bookId !== bookId);
+                        }
+                    });
+
+                    saveLibraryToStorage();
+                    renderBooksTab();
+                    populateBookFilterDropdown('bank-book-filter');
+                    
+                    document.getElementById('books-selected-title').innerHTML = `<i class="fa-solid fa-swatchbook text-indigo-600"></i> No Book Selected`;
+                    document.getElementById('books-assoc-count').innerText = "0 Linked Questions";
+                    document.getElementById('books-associated-questions-container').innerHTML = `
+                        <div class="text-center py-20 text-slate-400">
+                            <i class="fa-solid fa-book-open-reader text-4xl mb-3 text-slate-300"></i>
+                            <span class="block text-xs font-bold uppercase tracking-wide">Select a Reference Book</span>
+                        </div>
+                    `;
+
+                    showToast("Book reference deleted successfully.", "success");
+                }
+            );
+        }
+
+        function selectBookInHub(bookId) {
+            const book = appState.books.find(b => b.id === bookId);
+            if (!book) return;
+
+            document.getElementById('books-selected-title').innerHTML = `<i class="fa-solid fa-swatchbook text-indigo-600"></i> ${escapeHtml(book.name)}`;
+            document.getElementById('books-selected-meta').innerText = `Resource identifier: ${book.id}`;
+
+            const related = appState.questions.filter(q => q.sources && q.sources.some(src => src.bookId === bookId));
+            document.getElementById('books-assoc-count').innerText = `${related.length} Linked Question(s)`;
+
+            const container = document.getElementById('books-associated-questions-container');
+            container.innerHTML = "";
+
+            if (related.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                        <i class="fa-solid fa-triangle-exclamation text-2xl mb-2 text-slate-300"></i>
+                        <span class="block text-xs font-bold">No Questions Associated Yet</span>
+                        <span class="block text-[10px] text-slate-400 mt-1">Select this resource inside the question editor form to link entries.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            related.forEach(q => {
+                const srcInfo = q.sources.find(src => src.bookId === bookId);
+                const item = document.createElement('div');
+                item.className = "p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3 flex flex-col justify-between hover:border-slate-300 transition shadow-sm";
+                
+                item.innerHTML = `
+                    <div class="flex justify-between items-start gap-3 flex-wrap">
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="text-[9px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded font-black uppercase tracking-wider">${escapeHtml(q.subject)}</span>
+                            <span class="text-[9px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-black uppercase tracking-wider">Page: ${escapeHtml(srcInfo.page)}</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-mono font-bold">${q.mastered ? 'Mastered' : 'Needs Practice'}</span>
+                    </div>
+                    <p class="text-xs font-extrabold text-slate-800 line-clamp-2 leading-relaxed">${escapeHtml(q.question)}</p>
+                    <div class="flex gap-2 justify-end border-t border-slate-200/60 pt-2 flex-wrap">
+                        <button onclick="scrollToQuestionInBank('${q.id}')" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1 bg-white px-3 py-2 rounded-lg border border-slate-200 min-h-[32px]">
+                            <i class="fa-solid fa-magnifying-glass"></i> View in Bank
+                        </button>
+                        <button onclick="triggerEditQuestion('${q.id}')" class="text-[10px] font-bold text-slate-600 hover:text-slate-800 transition flex items-center gap-1 bg-white px-3 py-2 rounded-lg border border-slate-200 min-h-[32px]">
+                            <i class="fa-solid fa-pen"></i> Edit Question
+                        </button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Jump to Question bank with highlight
+        function scrollToQuestionInBank(qId) {
+            switchTab('bank');
+            document.getElementById('bank-subject-filter').value = 'all';
+            document.getElementById('bank-book-filter').value = 'all';
+            document.getElementById('bank-mastery-filter').value = 'all';
+            document.getElementById('bank-search-input').value = '';
+            
+            renderQuestionBank();
+
+            setTimeout(() => {
+                const card = document.getElementById(`bank-q-card-${qId}`);
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.classList.add('pulsing-card');
+                    
+                    setTimeout(() => {
+                        card.classList.remove('pulsing-card');
+                    }, 6000);
+                } else {
+                    showToast("Failed to focus targeted card.", "error");
+                }
+            }, 100);
+        }
+
+        function renderFormSourcesList() {
+            const container = document.getElementById('form-sources-container');
+            container.innerHTML = "";
+
+            if (appState.books.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5 bg-slate-100 rounded-xl border border-dashed border-slate-300">
+                        <span class="text-xs text-slate-500 font-bold block">No reference books cataloged</span>
+                        <span class="text-[10px] text-slate-400 block mt-1">Register a volume below or inside the 'Books' tab to link pages.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            activeFormSources.forEach((src, index) => {
+                const row = document.createElement('div');
+                row.className = "flex items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-inner flex-wrap md:flex-nowrap";
+                
+                let selectOptionsHtml = "";
+                appState.books.forEach(b => {
+                    selectOptionsHtml += `<option value="${b.id}" ${src.bookId === b.id ? 'selected' : ''}>${escapeHtml(b.name)}</option>`;
+                });
+
+                row.innerHTML = `
+                    <div class="flex-grow w-full md:w-auto">
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Book Name</label>
+                        <select onchange="updateSourceRow(${index}, 'bookId', this.value)" class="w-full text-xs font-semibold bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2.5 focus:outline-none min-h-[40px]" required>
+                            ${selectOptionsHtml}
+                        </select>
+                    </div>
+                    <div class="w-full md:w-32 shrink-0">
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase mb-1">Page Number</label>
+                        <input type="text" value="${escapeHtml(src.page)}" oninput="updateSourceRow(${index}, 'page', this.value)" placeholder="e.g., 102" class="w-full text-xs font-semibold bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 focus:outline-none focus:bg-white min-h-[40px]" required>
+                    </div>
+                    <div class="pt-4 w-full md:w-auto flex justify-end">
+                        <button type="button" onclick="removeSourceRow(${index})" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2.5 rounded-lg transition min-w-[40px] min-h-[40px] flex items-center justify-center" title="Delete Source Association">
+                            <i class="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function addSourceRow() {
+            if (appState.books.length === 0) {
+                showToast("Please register a reference book first.", "error");
+                return;
+            }
+            activeFormSources.push({
+                bookId: appState.books[0].id,
+                page: ""
+            });
+            renderFormSourcesList();
+        }
+
+        function removeSourceRow(index) {
+            activeFormSources.splice(index, 1);
+            renderFormSourcesList();
+        }
+
+        function updateSourceRow(index, key, val) {
+            if (activeFormSources[index]) {
+                activeFormSources[index][key] = val;
+            }
+        }
+
+        // Inline Book Registration inside Editor Forms
+        function quickAddBookFromForm() {
+            const input = document.getElementById('form-quick-book-name');
+            const name = input.value.trim();
+
+            if (!name) {
+                showToast("Please enter a book name.", "error");
+                return;
+            }
+
+            if (appState.books.some(b => b.name.toLowerCase() === name.toLowerCase())) {
+                showToast("Book already registered.", "error");
+                return;
+            }
+
+            const newBook = {
+                id: 'book-' + Date.now(),
+                name: name
+            };
+
+            appState.books.push(newBook);
+            saveLibraryToStorage();
+            input.value = "";
+            showToast(`"${name}" registered! Added to list.`, "success");
+            
+            if (activeFormSources.length === 0) {
+                activeFormSources.push({
+                    bookId: newBook.id,
+                    page: ""
+                });
+            }
+            renderFormSourcesList();
+            populateBookFilterDropdown('bank-book-filter');
+        }
+
+        function toggleCustomSubjectInput() {
+            const selector = document.getElementById('form-subject-select');
+            const customWrapper = document.getElementById('custom-subject-wrapper');
+            if (selector && selector.value === 'Others') {
+                customWrapper.classList.remove('hidden');
+                document.getElementById('form-custom-subject').setAttribute('required', 'true');
+            } else {
+                if (customWrapper) customWrapper.classList.add('hidden');
+                document.getElementById('form-custom-subject').removeAttribute('required');
+            }
+        }
+
+        function triggerEditQuestion(id) {
+            const qData = appState.questions.find(q => q.id === id);
+            if (!qData) return;
+
+            document.getElementById('form-question-id').value = qData.id;
+            document.getElementById('form-question-text').value = qData.question;
+            document.getElementById('form-opt-a').value = qData.options[0];
+            document.getElementById('form-opt-b').value = qData.options[1];
+            document.getElementById('form-opt-c').value = qData.options[2];
+            document.getElementById('form-opt-d').value = qData.options[3];
+            document.getElementById('form-correct-choice').value = qData.correctAnswer;
+            document.getElementById('form-explanation').value = qData.explanation;
+
+            activeFormSources = qData.sources ? JSON.parse(JSON.stringify(qData.sources)) : [];
+
+            const subjectSelect = document.getElementById('form-subject-select');
+            const availableOptions = Array.from(subjectSelect.options).map(o => o.value);
+
+            if (availableOptions.includes(qData.subject)) {
+                subjectSelect.value = qData.subject;
+            } else {
+                subjectSelect.value = 'Others';
+                document.getElementById('form-custom-subject').value = qData.subject;
+            }
+
+            toggleCustomSubjectInput();
+            renderFormSourcesList();
+
+            document.getElementById('form-panel-title').innerText = "Edit Study Question";
+            document.getElementById('form-mode-badge').innerText = "Update Mode";
+            document.getElementById('form-mode-badge').className = "text-[10px] bg-amber-50 text-amber-800 px-2.5 py-1 rounded font-black uppercase";
+
+            switchTab('input');
+        }
+
+        function saveFormQuestion(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('form-question-id').value;
+            const selectVal = document.getElementById('form-subject-select').value;
+            const finalSubject = selectVal === 'Others' ? document.getElementById('form-custom-subject').value.trim() : selectVal;
+
+            if (!finalSubject) {
+                showToast("Please enter a valid subject name.", "error");
+                return;
+            }
+
+            const scrubbedSources = activeFormSources.filter(src => src.bookId && src.page.trim() !== "");
+
+            const payload = {
+                question: document.getElementById('form-question-text').value.trim(),
+                options: [
+                    document.getElementById('form-opt-a').value.trim(),
+                    document.getElementById('form-opt-b').value.trim(),
+                    document.getElementById('form-opt-c').value.trim(),
+                    document.getElementById('form-opt-d').value.trim()
+                ],
+                correctAnswer: document.getElementById('form-correct-choice').value,
+                explanation: document.getElementById('form-explanation').value.trim(),
+                subject: finalSubject,
+                sources: scrubbedSources
+            };
+
+            if (id) {
+                const index = appState.questions.findIndex(q => q.id === id);
+                if (index > -1) {
+                    appState.questions[index] = {
+                        ...appState.questions[index],
+                        ...payload
+                    };
+                    showToast("Question updated successfully!", "success");
+                }
+            } else {
+                const newRecord = {
+                    id: 'q-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+                    ...payload,
+                    mastered: false,
+                    createdOn: new Date().toISOString()
+                };
+                appState.questions.push(newRecord);
+                showToast("New concept saved to bank!", "success");
+            }
+
+            saveLibraryToStorage();
+            resetQuestionForm();
+            switchTab('bank');
+        }
+
+        function resetQuestionForm() {
+            document.getElementById('question-editor-form').reset();
+            document.getElementById('form-question-id').value = "";
+            document.getElementById('form-panel-title').innerText = "Add New Study Question";
+            document.getElementById('form-mode-badge').innerText = "Create Mode";
+            document.getElementById('form-mode-badge').className = "text-[10px] bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded font-black uppercase";
+            activeFormSources = [];
+            renderFormSourcesList();
+            toggleCustomSubjectInput();
+        }
+
+        function cancelQuestionForm() {
+            resetQuestionForm();
+            switchTab('bank');
+        }
+
+        function triggerDeleteQuestion(id) {
+            showConfirmModal(
+                "Delete Study Question?", 
+                "Are you sure you want to remove this question and explanation from your local database?", 
+                function() {
+                    appState.questions = appState.questions.filter(q => q.id !== id);
+                    saveLibraryToStorage();
+                    showToast("Question deleted.", "success");
+                    renderQuestionBank();
+                }
+            );
+        }
+
+        function promptResetBank() {
+            showConfirmModal(
+                "Reset Complete Database?", 
+                "This action will permanently delete all questions and explanations saved in this browser. Please ensure you have exported a backup JSON file first.", 
+                function() {
+                    appState.questions = [];
+                    appState.books = [];
+                    saveLibraryToStorage();
+                    showToast("Database successfully cleared.", "success");
+                    refreshAllUIPanels();
+                }
+            );
+        }
+
+        function triggerImportSelection() {
+            document.getElementById('import-file-selector').click();
+        }
+
+        async function selectBackupFolder() {
+            try {
+                if (!window.showDirectoryPicker) {
+                    showToast("Direct Folder Sync is not supported by your current browser. Falling back to default download.", "error");
+                    return;
+                }
+                
+                // Prompt user to select directory
+                directoryHandle = await window.showDirectoryPicker({
+                    mode: 'readwrite'
+                });
+                
+                // Confirm user granted access
+                const permissionOptions = { mode: 'readwrite' };
+                if ((await directoryHandle.queryPermission(permissionOptions)) !== 'granted') {
+                    if ((await directoryHandle.requestPermission(permissionOptions)) !== 'granted') {
+                        showToast("Folder write permissions denied.", "error");
+                        directoryHandle = null;
+                        return;
+                    }
+                }
+                
+                document.getElementById('selected-folder-name').innerText = `Sync Linked Folder: "${directoryHandle.name}"`;
+                document.getElementById('sync-folder-btn').classList.remove('hidden');
+                showToast("Folder successfully authorized and linked!", "success");
+            } catch (err) {
+                console.error(err);
+                if (err.name === 'AbortError') {
+                    showToast("Folder selection canceled.", "error");
+                } else {
+                    showToast("Browser sandboxing blocked direct folder write. Standard JSON download fallback active.", "error");
+                }
+            }
+        }
+
+        async function syncBackupToFolder() {
+            if (!directoryHandle) {
+                showToast("Please link a target folder first.", "error");
+                return;
+            }
+            try {
+                const backupData = {
+                    questions: appState.questions,
+                    books: appState.books
+                };
+                const dateStr = new Date().toISOString().slice(0, 10);
+                const fileName = `StudyHub_Backup_${dateStr}.json`;
+                
+                // Write content to linked directory
+                const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(JSON.stringify(backupData, null, 2));
+                await writable.close();
+                
+                showToast(`Backup saved directly to linked directory: ${fileName}`, "success");
+            } catch (err) {
+                console.error(err);
+                showToast("Direct folder write failed. Triggering default download instead.", "error");
+                exportQuestionLibrary(); // Fallback trigger
+            }
+        }
+
+        // Standard dynamic JSON download engine fallback
+        function exportQuestionLibrary() {
+            if (appState.questions.length === 0 && appState.books.length === 0) {
+                showToast("Your database is empty. Add data before exporting backups.", "error");
+                return;
+            }
+
+            const backupData = {
+                questions: appState.questions,
+                books: appState.books
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            const dateStr = new Date().toISOString().slice(0, 10);
+            
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `StudyHub_Backup_${dateStr}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            
+            showToast("Backup JSON file generated and downloaded!", "success");
+        }
+
+        // Import backup database files
+        function importQuestionLibrary(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsedData = JSON.parse(e.target.result);
+                    let importedQuestions = [];
+                    let importedBooks = [];
+
+                    if (Array.isArray(parsedData)) {
+                        importedQuestions = parsedData;
+                        importedBooks = [...bootstrapMockBooks];
+                    } else if (parsedData.questions && Array.isArray(parsedData.questions)) {
+                        importedQuestions = parsedData.questions;
+                        importedBooks = parsedData.books || [];
+                    } else {
+                        throw new Error("Invalid schema");
+                    }
+
+                    importedQuestions.forEach(q => {
+                        if (!q.sources) q.sources = [];
+                    });
+
+                    showConfirmModal(
+                        "Import Study Backup?",
+                        `This backup holds ${importedQuestions.length} questions and ${importedBooks.length} reference book(s). Overwrite existing browser cache?`,
+                        function() {
+                            appState.questions = importedQuestions;
+                            appState.books = importedBooks;
+                            saveLibraryToStorage();
+                            refreshAllUIPanels();
+                            showToast("Backup imported successfully!", "success");
+                            switchTab('dashboard');
+                        }
+                    );
+                } catch (err) {
+                    showToast("Parser error. Ensure file maps backup standards correctly.", "error");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = "";
+        }
+
+        function printEntireLibrary() {
+            if (appState.questions.length === 0) {
+                showToast("Your database is currently empty. Add questions to generate a PDF.", "error");
+                return;
+            }
+
+            const printContainer = document.getElementById('print-questions-flow');
+            printContainer.innerHTML = "";
+
+            appState.questions.forEach((q, index) => {
+                const printCard = document.createElement('div');
+                printCard.className = "print-card border border-slate-300 p-6 rounded-xl space-y-4 bg-white mb-6 break-inside-avoid";
+                
+                let printSourcesText = "";
+                if (q.sources && q.sources.length > 0) {
+                    const mapped = q.sources.map(src => `${getBookNameById(src.bookId)} (p. ${src.page})`);
+                    printSourcesText = mapped.join(", ");
+                } else {
+                    printSourcesText = "No indexed reference volumes.";
+                }
+
+                printCard.innerHTML = `
+                    <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+                        <span class="text-xs font-bold text-indigo-900 uppercase">Subject: ${q.subject}</span>
+                        <span class="text-[10px] font-bold text-slate-500">Entry #${index + 1}</span>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-[9px] text-slate-400 font-extrabold uppercase">Question</span>
+                        <p class="font-extrabold text-slate-900 leading-relaxed text-sm">${escapeHtml(q.question)}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-xs bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <div class="${q.correctAnswer === 'A' ? 'font-bold text-emerald-700' : 'text-slate-600'}">A. ${escapeHtml(q.options[0])}</div>
+                        <div class="${q.correctAnswer === 'B' ? 'font-bold text-emerald-700' : 'text-slate-600'}">B. ${escapeHtml(q.options[1])}</div>
+                        <div class="${q.correctAnswer === 'C' ? 'font-bold text-emerald-700' : 'text-slate-600'}">C. ${escapeHtml(q.options[2])}</div>
+                        <div class="${q.correctAnswer === 'D' ? 'font-bold text-emerald-700' : 'text-slate-600'}">D. ${escapeHtml(q.options[3])}</div>
+                    </div>
+                    <div class="text-[10px] text-slate-500 font-bold border-t border-slate-100 pt-2">
+                        <i class="fa-solid fa-swatchbook text-indigo-600"></i> Reference Sources: <span class="text-slate-800 font-semibold">${escapeHtml(printSourcesText)}</span>
+                    </div>
+                    <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                        <span class="text-[10px] text-indigo-950 font-black uppercase block mb-1">Concept Explanation & Core Rationale:</span>
+                        <div class="text-xs text-slate-700 font-medium whitespace-pre-wrap leading-relaxed code-font">
+                            ${escapeHtml(q.explanation)}
+                        </div>
+                    </div>
+                `;
+                printContainer.appendChild(printCard);
+            });
+
+            window.print();
+        }
+
+        function refreshAllUIPanels() {
+            renderDashboardMetrics();
+            populateSubjectDropdown('study-subject-filter');
+            populateSubjectDropdown('bank-subject-filter');
+            populateBookFilterDropdown('bank-book-filter');
+            renderQuestionBank();
+            renderBooksTab();
+        }
+
+        function escapeHtml(str) {
+            if (typeof str !== 'string') return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Custom notification system (Toasts)
+        function showToast(message, type = "success") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = "p-4 rounded-xl shadow-xl border text-xs font-bold text-white transform translate-y-2 opacity-0 transition-all duration-300 pointer-events-auto flex items-center justify-between gap-3 ";
+            
+            if (type === "success") {
+                toast.className += "bg-slate-900 border-slate-800 text-emerald-400";
+                toast.innerHTML = `<span class="flex items-center gap-2"><i class="fa-solid fa-circle-check"></i> ${message}</span>`;
+            } else {
+                toast.className += "bg-red-950 border-red-900 text-red-400";
+                toast.innerHTML = `<span class="flex items-center gap-2"><i class="fa-solid fa-circle-exclamation"></i> ${message}</span>`;
+            }
+
+            const closeBtn = document.createElement('button');
+            closeBtn.className = "text-slate-400 hover:text-white transition ml-auto shrink-0 min-w-[24px] min-h-[24px] flex items-center justify-center";
+            closeBtn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+            closeBtn.onclick = () => { toast.remove(); };
+            toast.appendChild(closeBtn);
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        // Custom interactive confirm popup modal
+        function showConfirmModal(title, message, onProceedCallback) {
+            const modal = document.getElementById('confirm-modal');
+            const cancelBtn = document.getElementById('confirm-cancel-btn');
+            const proceedBtn = document.getElementById('confirm-proceed-btn');
+
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-message').innerText = message;
+
+            modal.classList.remove('hidden');
+
+            cancelBtn.onclick = function() {
+                modal.classList.add('hidden');
+            };
+
+            proceedBtn.onclick = function() {
+                modal.classList.add('hidden');
+                if (typeof onProceedCallback === 'function') {
+                    onProceedCallback();
+                }
+            };
+        }
+    </script>
+</body>
+</html>
